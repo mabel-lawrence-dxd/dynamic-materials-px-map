@@ -1,0 +1,145 @@
+document.addEventListener('DOMContentLoaded',domLoaded,false);
+const START_IMAGE_PREVIEW_X = 252;
+const START_IMAGE_PREVIEW_Y = 150;
+function domLoaded(){
+    const canvas = document.getElementById("pixelMap");
+    let context = canvas.getContext("2d");
+    let image = context.createImageData(1, 1); // pixel image
+    let data = image.data;
+    const black = {r: 0, g: 0, b: 0, a:255};
+
+    let puppyPic = new Image();
+    puppyPic.src = document.getElementById("puppy").src;
+
+    drawMap();
+    const picturePx = readPixelData();
+    const filtered = filterPixels();
+    reMapFiltered();
+
+    
+    function drawMap(){
+        // drawGridWithSpacing();
+        drawStrip();
+        drawGrid();
+        drawString();
+        context.drawImage(puppyPic,START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y,80,128)
+        drawMask()
+    }
+
+    function readPixelData() {
+        const manipulatedImgData = context.getImageData(START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y,80,128);
+        let picturePx = [];
+        for (let i = 0; i < manipulatedImgData.data.length; i+=4){
+            let currentPx = manipulatedImgData.data.slice(i,i+3);
+            picturePx.push(currentPx);
+        }
+        return picturePx;
+    }
+    
+    function filterPixels(){
+        const filtered = [];
+        let idx = 0;
+        let startBlackVert = 79;
+        let rowIdx = 0;
+        while(idx<10240){
+            if(idx === startBlackVert){
+                idx+=240;
+                startBlackVert = startBlackVert+240+80;
+                rowIdx = 0;
+            }else{
+                if(rowIdx%2===0){
+                    filtered.push(picturePx[idx]);
+                }
+                idx++
+            }
+            rowIdx++;
+        }
+        return filtered;
+    }
+    console.log(filtered);
+
+    function reMapFiltered(){
+        let pxTrace = 0;
+        for(let i = 252; i<292; i++){
+            for(let j = 300; j<332; j++){
+                drawPixelRGB(i,j,filtered[pxTrace]);
+                pxTrace++;
+            }
+        }
+    }
+
+
+
+    /************************* HELPER FUNCTIONS *************************/
+    
+    //create mask for pixel grid in physical space
+    function drawMask(){
+        for (let i = START_IMAGE_PREVIEW_X; i < START_IMAGE_PREVIEW_X+80; i++){
+            for(let j = START_IMAGE_PREVIEW_Y; j< START_IMAGE_PREVIEW_Y+128; j++){
+                if(i%2===1){
+                    drawPixel(i,j,black);
+                }
+                if(j%4!==0){
+                    drawPixel(i,j,black);
+                }
+            }
+        }
+    }
+
+    function drawPixel(x, y, color) {
+        data[0] = color.r;
+        data[1] = color.g;
+        data[2] = color.b;
+        data[3] = color.a;
+
+        context.putImageData(image, x, y);
+    }
+
+    function drawPixelRGB(x,y,color){
+        data[0] = color[0]
+        data[1] = color[1]
+        data[2] = color[2]
+        data[3] = 255;
+        context.putImageData(image,x,y)
+    }
+
+    function drawStrip(){
+        context.beginPath();
+        context.moveTo(100,100);
+        context.lineTo(102,100);
+        context.lineTo(102,196);
+        context.lineTo(100,196);
+        context.fillStyle = "#FF0000"
+        context.fill();
+    }
+
+    function drawGrid(){
+        context.beginPath();
+        context.moveTo(252,100);
+        context.lineTo(292,100);
+        context.lineTo(292,132);
+        context.lineTo(252,132);
+        context.fillStyle = "#00FF00"
+        context.fill();
+    }
+
+    function drawGridWithSpacing(){
+        context.beginPath();
+        context.moveTo(252,500);
+        context.lineTo(332,500);
+        context.lineTo(332,628);
+        context.lineTo(252,628);
+        context.fillStyle = "#00BB00"
+        context.fill();
+    }
+
+    function drawString(){
+        context.beginPath();
+        context.moveTo(292,100);
+        context.lineTo(293,100);
+        context.lineTo(293,108);
+        context.lineTo(292,108);
+        context.fillStyle = "#0000FF"
+        context.fill();
+    }
+}
