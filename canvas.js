@@ -27,6 +27,9 @@ function domLoaded(){
         drawString();
         context.drawImage(puppyPic,START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y,80,128)
         // drawMask()
+        // read4x4(252,200)
+        // newMask(START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y);
+        reverseMask(START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y);
     }
 
     function readPixelData() {
@@ -37,6 +40,63 @@ function domLoaded(){
             picturePx.push(currentPx);
         }
         return picturePx;
+    }
+
+    function read4x4(x,y){
+        const imgData = context.getImageData(x,y,4,4); 
+        let fourPxColors = [];
+        for (let i = 0; i < imgData.data.length; i+=4){
+            let currentPx = imgData.data.slice(i,i+3);
+            fourPxColors.push(currentPx);
+        }
+        console.log(fourPxColors);
+        return fourPxColors;
+    }
+
+    function newMask(startX,startY){
+        console.log('REVERSE MASK')
+        for(let row = 0; row < 128; row+=4){
+            if(row%16!==0){
+                for(let col = startX; col < startX+80; col+=4){
+                    draw4x4(col,row+startY);
+                }
+            }
+            else{
+                for(let col = 4; col < 80; col+=8){
+                    draw4x4(col+startX,row+startY);
+                }
+            }
+        }
+    }
+
+    function reverseMask(startX,startY){
+        let check = true;
+        console.log('REVERSE MASK')
+        for(let row = 0; row < 128; row+=4){
+            if(row%16!==0){
+            }
+            else{
+                for(let col = 0; col < 80; col+=8){
+                    // draw4x4(col+startX,row+startY);
+                    let colorSection = read4x4(col+startX, row+startY);
+                        draw4x4RGB(((col + 100 + startX)/2)+100,((row+100+startY)/4)+300,colorSection);
+                        draw4x4RGB(col + 100 + startX,row+100+startY,colorSection);
+                }
+            }
+        }
+    }
+
+    function draw4x4RGB(x,y,colors){
+        // console.log('DRAW 4x4 RGB: ', colors)
+        let colorIdx = 0;
+        for(let row=0; row<4;row++){
+            for(let col = 0; col<4;col++){
+                // console.log(col,row)
+                // console.log('4x4 RGB individual: ',colors[colorIdx])
+                drawPixelRGB(x+col,y+row,colors[colorIdx]);
+                colorIdx++;
+            }
+        }
     }
     
     function filterPixels(){
@@ -65,9 +125,6 @@ function domLoaded(){
         let pxTrace = 0;
         for(let j = START_REMAP_Y; j<START_REMAP_Y+32; j++){
             for(let i = START_REMAP_X; i<START_REMAP_X+40; i++){
-                if(pxTrace<5){
-                    console.log(filtered[pxTrace])
-                }
                 drawPixelRGB(i,j,filtered[pxTrace]);
                 pxTrace++;
             }
@@ -95,6 +152,15 @@ function domLoaded(){
         data[3] = color.a;
 
         context.putImageData(image, x, y);
+    }
+
+    function draw4x4(x,y){
+        // console.log('DRAW 4x4 at:', x,y)
+        for(let col = x; col< x+4; col++){
+            for(row = y; row < y + 4; row++){
+                drawPixel(col,row,black);
+            }
+        }
     }
 
     function drawPixelRGB(x,y,color){
