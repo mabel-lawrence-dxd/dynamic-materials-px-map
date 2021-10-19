@@ -1,3 +1,4 @@
+import drawBackground from './drawBackground.js'
 import drawString from './drawString.js'
 import drawGrid from './drawGrid.js'
 import drawStrip from './drawStrip.js'
@@ -9,10 +10,16 @@ const START_IMAGE_PREVIEW_Y = 200;
 function domLoaded(){
     const canvas = document.getElementById("pixelMap");
     let context = canvas.getContext("2d");
+    canvas.addEventListener('contextmenu', function (e) { 
+        const dataURL = canvas.toDataURL('image/png');
+        canvas.src = dataURL;
+    });
 
     let puppyPic = new Image();
     puppyPic.src = document.getElementById("puppy").src;
 
+    //draw white background for export purposes
+    drawBackground()
     //pixel map for the 2x96 light tube
     drawStrip();
     //pixel map for the 40x32 grid
