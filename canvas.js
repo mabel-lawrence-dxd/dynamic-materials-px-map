@@ -16,8 +16,6 @@ function domLoaded(){
     drawMap();
     const picturePx = readPixelData();
     const filtered = filterPixels();
-    console.log(picturePx.slice(0,10));
-    console.log(filtered.slice(0,5));
     reMapFiltered();
 
     /************************* HELPER FUNCTIONS *************************/
@@ -28,7 +26,7 @@ function domLoaded(){
         drawGrid();
         drawString();
         context.drawImage(puppyPic,START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y,80,128)
-        drawMask()
+        // drawMask()
     }
 
     function readPixelData() {
