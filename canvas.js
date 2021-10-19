@@ -13,10 +13,15 @@ function domLoaded(){
     let puppyPic = new Image();
     puppyPic.src = document.getElementById("puppy").src;
 
+    //pixel map for the 2x96 light tube
     drawStrip();
+    //pixel map for the 40x32 grid
     drawGrid();
+    //pixel map for the 1x8 pixels on a string
     drawString();
+    //preview of image to remap for grid
     context.drawImage(puppyPic,START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y,80,128)
+    //remapped pixels (in 4x4) nodes accounting for physical space
     reverseMask(START_IMAGE_PREVIEW_X,START_IMAGE_PREVIEW_Y);
 
 }
